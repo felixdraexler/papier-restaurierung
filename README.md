@@ -9,8 +9,9 @@ Static copy of the former Wix site www.papier-restaurierung.at, hosted on GitHub
   `docs/m/` (phones). A small script at the top of each page switches to the right one.
 - `src/site.js` – the site's behaviour (menu scrolling and highlighting, "Mehr erfahren", mobile menu, back-to-top
   button, entrance animations, chat frame sizing). Timings were measured on the live Wix site.
-- `src/chat.js` – the chat widget. Looks like the Wix chat; messages are e-mailed via Web3Forms
-  (free plan; the access key in this file is public by design and only mails the registered address).
+- `src/chat.js` – the chat widget (Wix's markup incl. emoji picker; send button, attachments). Messages and
+  attached files are e-mailed via FormSubmit (free): a classic form post into a hidden frame, which FormSubmit
+  redirects to `chat-sent.html` to confirm delivery. The form alias in this file is public by design.
 - `tools/` – capture, build and verification scripts.
 
 ## Rebuilding (only needed while the Wix original still exists)

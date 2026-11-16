@@ -233,6 +233,22 @@ def build_page(variant, page):
     print('wrote', out.relative_to(ROOT))
 
 
+def add_emoji_picker(soup):
+    """Wix's emoji picker as captured (tools/probe-emoji.js), stored in <template>s for chat.js: the picker with
+    its first category, every category's panel, and the chevron the emoji button shows while the picker is open."""
+    import json
+    emoji = BeautifulSoup((STATES / 'chat-desktop-emoji.html').read_text(), 'html.parser')
+    picker = emoji.find(attrs={'data-hook': 'input-keyboards'})
+    panels = json.loads((STATES / 'emoji-panels.json').read_text())
+    icon = emoji.find('button', attrs={'data-hook': 'emoji-keyboard'}).find('svg')
+    parts = [('emoji-picker', picker.decode_contents()), ('emoji-icon-open', str(icon))]
+    parts += [(f'emoji-panel-{i}', p['html']) for i, p in enumerate(panels)]
+    for tid, html in parts:
+        t = soup.new_tag('template', id=tid)
+        t.append(BeautifulSoup(html, 'html.parser'))
+        soup.body.append(t)
+
+
 def build_chat(variant):
     """The chat frame: Wix's chat widget markup/CSS as captured, driven by chat.js instead of Wix."""
     soup = BeautifulSoup((STATES / f'chat-{variant}-open.html').read_text(), 'html.parser')
@@ -245,6 +261,13 @@ def build_chat(variant):
         for c in closed.find_all('style'):  # closed-state styles not present in the open state
             if c.get_text() not in {s.get_text() for s in soup.find_all('style')}:
                 soup.head.append(c)
+    if variant == 'desktop':
+        add_emoji_picker(soup)
+    # Send button Wix shows instead of the paperclip while the input holds text (tools/probe-send.js).
+    typed = BeautifulSoup((STATES / 'chat-input-typed.html').read_text(), 'html.parser')
+    t = soup.new_tag('template', id='send-button')
+    t.append(typed.find('button', attrs={'data-hook': 'send-button'}))
+    soup.body.append(t)
     clean(soup, '../assets/')
     soup.head.append(soup.new_tag('script', src='../chat.js', defer=True))
     soup.html['data-variant'] = variant

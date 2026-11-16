@@ -33,6 +33,22 @@
   }
   ['wheel', 'touchstart', 'keydown'].forEach((ev) => addEventListener(ev, () => scrollAnim++, { passive: true }));
 
+  // ---------- desktop menu layout ----------
+  // Wix sizes each menu item from its label as rendered in the visitor's browser (wix-dropdown-menu custom
+  // element): width = floor(round(label width) + gap), gap = data-original-gap-between-text-and-btn (10px).
+  // Text widths differ between systems, so this must be computed here, not frozen into the HTML.
+  function layoutMenu() {
+    const items = $$('#comp-ihm8jbpcitemsContainer > li.wixui-dropdown-menu__item');
+    items.forEach((li) => { li.style.width = ''; }); // measure the labels at their natural width
+    const widths = items.map((li) => Math.floor(Math.round($('p', li).getBoundingClientRect().width) +
+      parseFloat(li.dataset.originalGapBetweenTextAndBtn)));
+    items.forEach((li, i) => { li.style.width = widths[i] + 'px'; });
+  }
+  if ($('#comp-ihm8jbpcitemsContainer')) {
+    layoutMenu();
+    document.fonts.ready.then(layoutMenu);
+  }
+
   // ---------- anchor menu ----------
   // Menu entries reference Wix data items; these are the anchor components they point to.
   const ANCHORS = {
