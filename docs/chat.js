@@ -219,7 +219,7 @@
       keyboards.classList.toggle('ZN2TR', !open);
       if (open) keyboards.style.borderTop = '1px solid rgb(238, 238, 238)'; else keyboards.removeAttribute('style');
       iconHolder.innerHTML = open ? openIcon : closedIcon;
-      if (open) focusRing($('#emojis-tab-0', keyboards)); // Wix focuses the first category
+      if (open) $('#emojis-tab-0', keyboards).focus(); // Wix focuses the first category (browser focus ring)
     }
     emojiBtn.addEventListener('click', () => setPicker(!keyboards.childElementCount));
     keyboards.addEventListener('click', (e) => {
